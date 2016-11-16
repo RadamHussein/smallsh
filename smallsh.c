@@ -9,6 +9,7 @@
 
 
 int check_status_command(char *command){
+	printf("check_status_command\n");
 	char status_command[] = "status\n";
 	int result = strcmp(command, status_command);
 
@@ -21,6 +22,7 @@ int check_status_command(char *command){
 }
 
 int check_for_comment(char characterToCheck){
+	printf("check_for_comment\n");
 	char comment[] = "#";
 	char *ch;
 	ch = &characterToCheck;
@@ -37,6 +39,7 @@ int check_for_comment(char characterToCheck){
 }
 
 void handle_cd(char *command){
+	printf("handle cd\n");
 	char cd_command[] = "cd\n";
 	char cwd[100];
 	chdir(getenv("HOME"));
@@ -49,12 +52,14 @@ void handle_status(char *command){
 }
 
 void execute_command(char *command){
+	printf("execute command\n");
 	//printf("command was: %s\n", command);
 	//printf("length of command was %d\n", strlen(command));
 	system(command);
 }
 
 void handle_cd_relative(char *command){
+	printf("handle_cd_relative\n");
 	char cwd[100];
 	char changeDir[100];
 	char result;
@@ -69,12 +74,13 @@ void handle_cd_relative(char *command){
 
 	//change directory
 	result = sprintf(changeDir, "%s/%s", cwd, directory);
-	//printf("changing to %s\n", changeDir);
+	printf("changing to %s\n", changeDir);
+	fflush(stdout);
 	chdir(changeDir);
 }
 
 int check_cd_command(char *command){
-	//printf("lenght of cd: %d\n", strlen(command));
+	printf("check_cd_command\n");
 	char cd_command[] = "cd\n";
 	char longer_command[] = "cd";
 	char destCommand[100];
@@ -98,6 +104,8 @@ int check_cd_command(char *command){
 			//printf("command contains %s\n", destCommand);
 			//execute cd command
 			handle_cd_relative(destCommand);
+			printf("directory changed. returning...\n");
+			fflush(stdout);
 			return 1;
 		}
 		else{
@@ -119,6 +127,7 @@ int check_cd_command(char *command){
 	}
 }
 
+/*
 void check_command_type(char *command){
 	int i; 
 	for (i = 0; i < strlen(command); i++){
@@ -131,8 +140,12 @@ void check_command_type(char *command){
 		else if (command[i] == '&'){
 			printf("& found\n");
 		}
+		else if (command[i] == '#'){
+			printf("comment found");
+		}
 	}
 }
+*/
 
 int main(){
 	int x = 100;
@@ -145,14 +158,21 @@ int main(){
 	pid_t spawnpid = -5;
 	int ten = 10;
 	int exitMethod;
+	int pid;
+
 
 	while (x == 100){
-		Top:
+		Top: 
+		pid = getpid();
+		printf("At the Top. Pid: %d\n", pid);
+		fflush(stdout);
+		fflush(stdin);
 		spawnpid = -5;
 		ten = 10;	//remove later
 		printf(": ");
 		fgets(command, 20, stdin);
 		fflush(stdout);
+		fflush(stdin);
 
 		//check for exit command	
 		result = strcmp(command, exit_command);
@@ -168,6 +188,8 @@ int main(){
 		//cd command
 		else if (check_cd_command(command) == 1){
 			//skip to bottom of loop. cd command has been executed
+			printf("going back to Top\n");
+			fflush(stdout);
 			goto Top;
 		}
 		//status command
@@ -184,8 +206,7 @@ int main(){
 				//next check if the first character was an #
 				result = check_for_comment(command[0]);		
 				if (result == 0){
-					//fflush(stdout);
-					check_command_type(command);
+					//check_command_type(command);
 					spawnpid = fork();
 					switch (spawnpid){
 						case -1:
@@ -193,9 +214,9 @@ int main(){
 							exit(1);
 							break;
 						case 0:
-							ten = ten + 1; 
+							//ten = ten + 1; 
 							//printf("I am the child! ten = %d\n", ten);
-							printf("execing %s...\n", command);
+							//printf("execing %s...\n", command);
 							fflush(stdout);
 							execlp(command, NULL);
 							execute_command(command);
