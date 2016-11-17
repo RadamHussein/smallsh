@@ -52,9 +52,7 @@ void handle_status(char *command){
 }
 
 void execute_command(char *command){
-	//printf("execute command\n");
-	//printf("command was: %s\n", command);
-	//printf("length of command was %d\n", strlen(command));
+	printf("calling process is %d\n", getpid());
 	system(command);
 }
 
@@ -74,9 +72,11 @@ void handle_cd_relative(char *command){
 
 	//change directory
 	result = sprintf(changeDir, "%s/%s", cwd, directory);
-	//printf("changing to %s\n", changeDir);
-	//fflush(stdout);
+	printf("changing to %s\n", changeDir);
+	fflush(stdout);
 	chdir(changeDir);
+	getcwd(cwd, sizeof(cwd));
+	printf("changed to %s\n", cwd);
 }
 
 int check_cd_command(char *command){
@@ -170,7 +170,7 @@ int main(){
 	int exitMethod;
 	int child_pid;
 	int parent_pid;
-	pid_t background_pid;
+	pid_t background_pid = -5;
 
 
 	while (x == 100){
