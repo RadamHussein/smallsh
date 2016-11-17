@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <signal.h>
 #include <string.h>
+#include <errno.h>
 
 
 int check_status_command(char *command){
@@ -52,7 +53,7 @@ void handle_status(char *command){
 }
 
 void execute_command(char *command){
-	printf("calling process is %d\n", getpid());
+	//printf("calling process is %d\n", getpid());
 	system(command);
 }
 
@@ -68,13 +69,16 @@ void handle_cd_relative(char *command){
 
 	//parse the directory to move to out of the cd command
 	directory = strtok(command, " ");
-	directory = strtok(NULL, " ");
+	directory = strtok(NULL, "\n");
+	//printf("directory %s\n", directory);
 
 	//change directory
 	result = sprintf(changeDir, "%s/%s", cwd, directory);
+	//result = sprintf(changeDir, "/%s", directory);
 	printf("changing to %s\n", changeDir);
-	fflush(stdout);
+	//fflush(stdout);
 	chdir(changeDir);
+	printf("the outcome of chdir() was %s\n", strerror(errno));
 	getcwd(cwd, sizeof(cwd));
 	printf("changed to %s\n", cwd);
 }
@@ -88,7 +92,7 @@ int check_cd_command(char *command){
 	char *temp;
 
 	//copy command to new string before messing with it
-	memset(destCommand, '\0', sizeof(destCommand));
+	//memset(destCommand, '\0', sizeof(destCommand));
 	strcpy(destCommand, command);
 
 	//get the first 2 characters from command and compare
@@ -232,9 +236,9 @@ int main(){
 								background_pid = child_pid;
 							}
 
-							printf("I am child %d\n", child_pid);
+							//printf("I am child %d\n", child_pid);
 							//printf("execing %s...\n", command);
-							fflush(stdout);
+							//fflush(stdout);
 							execlp(command, NULL);
 							execute_command(command);
 							exit(0);					
@@ -245,9 +249,9 @@ int main(){
 							break;
 						default:
 							parent_pid = getpid();
-							printf("I am parent %d\n", parent_pid);
+							//printf("I am parent %d\n", parent_pid);
 							pid_t exitpid = wait(&exitMethod);
-							printf("parent: child exited [%d]\n", exitMethod);
+							//printf("parent: child exited [%d]\n", exitMethod);
 							fflush(stdout);
 
 							//exit(0);
