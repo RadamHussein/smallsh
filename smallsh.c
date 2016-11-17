@@ -63,6 +63,7 @@ void handle_cd_relative(char *command){
 	char changeDir[100];
 	char result;
 	char *directory;
+	int x;
 
 	//get the current working directory
 	getcwd(cwd, sizeof(cwd));
@@ -77,7 +78,8 @@ void handle_cd_relative(char *command){
 	//result = sprintf(changeDir, "/%s", directory);
 	printf("changing to %s\n", changeDir);
 	//fflush(stdout);
-	chdir(changeDir);
+	x = chdir(changeDir);
+	printf("operation %d\n", x);
 	printf("the outcome of chdir() was %s\n", strerror(errno));
 	getcwd(cwd, sizeof(cwd));
 	printf("changed to %s\n", cwd);
